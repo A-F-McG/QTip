@@ -30,17 +30,19 @@ Clone the repo, then:
 
 - In the classifications table, I'm storing the original value as an encrypted blob because otherwise it wouldn't be very secure if someone got access to the database and could read everyone's personal information (even if that person was a company employee with accidental access to the db rather than someone hacking in)
 
-- Unique emails per submission are stored in the database. This is done 1. in DetectDistinct, and so I only create tokens for unique emails, and 2. the database has a constraint saying TokenizedPii should be unique, which means even if multiple submissions with the same email are made at the same time, no duplicates will be entered into the db. Similarly, EncryptedPii in unique in the database.
-
 - I considered a foreign key linking the submission text to the various Pii entries to enable simpler queries to reconstruct the message and to make it easy to delete the pii classifications if a user wanted to remove their submissions from our db, however since each email should be unique in the db with a unique token, this setup didn't end up making sense so I abandoned it, plus reconstructing the message isn't explicitly needed here
 
   #### Bug:
 
-  This unique email situation works per submission, but I know that right now if you send the same email through in a second submission, it's going to build the token and encrypted text for it, try to add it to the classifications table (which won't happen because of the unique constraint), but then it will still input the tokenised text into the tokenised submissions table with the generated token (instead of using the existing one in the classifications table).
+  Unique emails per submission are stored in the database. This is done in DetectDistinct, and so I only create tokens for unique pii and then update the tables.
+  
+  However, currently I know that right now if you send the same email through in a second submission, it will be added to the tables again with a newly generated tokenised (instead of using the existing one in the classifications table).
 
   The problem is I need to first check whether the email/pii has already been added to the classifications table, but I can't search via the tokenised text because I don't know it, and I can't search using the ecrypted bytes, because 1. I think that's probably a little odd and 2. I couldn't anyway as I don't know the random initialisation vector without finding the entry in the database.
 
   I think the solution is to use a hash of some sort that you also save in the database and can recreate and search by. I'm not super familiar with that but would like to look into it more and learn how it works; cryptography was actually my favourite module at university so I'm sure I understood all this once upon a time!
+
+  I would also like to have a database constraint saying that every hash should be unique, which means even if multiple submissions with the same email are made at the same time, no duplicates will be entered into the db. 
 
 ### Frontend:
 
