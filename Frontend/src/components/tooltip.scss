@@ -1,0 +1,28 @@
+.tooltip {
+  position: relative;
+  /* visually hidden but still read out by screen readers 
+     (as otherwise blind users may not receive the information if they can't see where to hover) */
+  span {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+
+    color: green;
+  }
+
+  &:hover span,
+  &:focus span {
+    left: 0;
+    top: -200%;
+    width: auto;
+    height: auto;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 1em;
+    font-weight: normal;
+    padding: 0.25em 0.5em;
+  }
+}

@@ -1,0 +1,17 @@
+:root {
+  --primary-color: #6d1f85;
+  --primary-font: "Montserrat", sans-serif;
+
+  font-family: var(--primary-font);
+}
+
+h1 {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+}
+
+textarea,
+button {
+  font-family: var(--primary-font);
+}
