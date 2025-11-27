@@ -4,7 +4,7 @@
 
 Clone the repo, then:
 
-- To run: `docker compose up` inside the top-level directory (QTip) where the compose file is
+- To run: `docker compose up --build` inside the top-level directory (QTip) where the compose file is (don't need --build after the first run unless you change something)
 
 - View the application on: `localhost:3000`
 
