@@ -4,7 +4,7 @@
 
 Clone the repo, then:
 
-- To run: `docker compose up` in the top-level directory where the compose file is
+- To run: `docker compose up` inside the top-level directory (QTip) where the compose file is
 
 - View the application on: `localhost:3000`
 
@@ -36,7 +36,7 @@ Clone the repo, then:
 
   #### Bug:
 
-  This unique email situation works per submission, but I know that right now if you send the same email through in a second submission, it's going to build the token and encrypted text for it, try to add it to the classifications table (which won't happen because of the unique constraint), but then it will still input the tokenised text into the tokenised submissions table with the generated token (instead of the existing one in the classifications table).
+  This unique email situation works per submission, but I know that right now if you send the same email through in a second submission, it's going to build the token and encrypted text for it, try to add it to the classifications table (which won't happen because of the unique constraint), but then it will still input the tokenised text into the tokenised submissions table with the generated token (instead of using the existing one in the classifications table).
 
   The problem is I need to first check whether the email/pii has already been added to the classifications table, but I can't search via the tokenised text because I don't know it, and I can't search using the ecrypted bytes, because 1. I think that's probably a little odd and 2. I couldn't anyway as I don't know the random initialisation vector without finding the entry in the database.
 
@@ -46,13 +46,13 @@ Clone the repo, then:
 
 - Using React and simple SASS. React is good for the bit of interactivity on the page (e.g. showing the annotated text with tooltips on the fly). I'm very familiar with NextJS, and noticed Qala also uses it, but that seemed overkill for this project since I don't need any routing, it's not deployed so server side rendering isn't needed and I'm not using the server actions/backend capabilities of NextJS. I've tried to keep a minimal amount of files, while still having things be readable without too much in one file.
 
-- function over arrows. like the hoisting so functions can be at the bottom. i find it more readable
+- Using unnamed function rather than arrow functions. This is just personal preference because I like making use of the the hoisting so that functions can be written at the bottom of the file - I find it more readable. But I think consistency is more important than my slight personal preference, so within a company codebase I'd agree on/follow existing conventions.
 
-- I've chosen to display the text with pii underlined with tooltips underneath the form. This is for accessibility reasons as you should be able to trigger the tooltips using your keyboard without your mouse (so that people with various disabilities, e.g. blindness and using a screen reader or someone with tremors who struggles with dexterity) can also access the information.
+- I've chosen to display the text underneath the form with pii underlined and with tooltips. This is for accessibility reasons as you should be able to trigger the tooltips using your keyboard without your mouse (so that people with various disabilities, e.g. blindness and using a screen reader or someone with tremors who struggles with dexterity) can also access the information.
 
 ### Testing:
 
-- I've used Jest and xUnit to unit test the regex patterns because I love a good test and I'm familiar with those libraries so it was quick to implement. I didn't write as many tests as usual (I often start with them), and I'd have liked to add end to end testing too, maybe using Playwright.
+- I've used Jest and xUnit to unit test the regex patterns because I love a good test and I'm familiar with those libraries so it was quick to implement. I didn't write as many tests as usual (I often start with them/write the code and test in small increments together), and I'd have liked to add end to end testing too, maybe using Playwright.
 
 ### Things I wouldn't do in production:
 
@@ -62,18 +62,18 @@ Clone the repo, then:
 
 ## Trade-offs or shortcuts taken
 
-- I'm sure there are a bunch of edge cases for email formatting. I've used a simple-ish regex on the front end which catches the basic email format, but I haven't deep dived into which symbols are and aren't allowed in emails so I may well be catching things that aren't legitimate emails. I've also assumed that the email starts and ends with a word boundary, as things were starting to get complicated when I tried to account for people not leaving spaces around the email, which I'd have had to have more of a think about to find a solution. I've also used an oversimplified phone regex
+- I'm sure there are a bunch of edge cases for email formatting. I've used a simple-ish regex which catches the basic email format, but I haven't deep dived into which symbols are and aren't allowed in emails so I may well be catching things that aren't legitimate emails. I've also assumed that the email starts and ends with a word boundary, as things were starting to get complicated when I tried to account for people not leaving spaces around the email, which I'd have had to have more of a think about to find a solution. I've also used an oversimplified phone regex
 
 - I'd add better error handing with more time, both on the frontend and backend
 
 - Styling is quite basic
 
-= I generally push smalller git commits to keep track of updates, but I was having fun and got too into the project :)
+- I generally push smalller git commits (& PRs) to make it easier to understand what's changed, but I was having fun and got too into the project :)
 
 ## (Optional) Implementation notes for the optional extension
 
 - Implemented the backend (you can submit and view 10-digit phone numbers added to the classifications table):
-  I created a IPiiDetector interface with a DetectDistinct function and the type (of pii detector, e.g. email). Because I've added IPiiDetector to the app services, and I'm using dependency injection when looping through each of them in Program, it means for any new pii I want to detect, all I'd need to do is create a new class that implements the interface and register it in the services which makes it clean and easy to keep track of what pii we're testing.
+  I created an IPiiDetector interface with a DetectDistinct function and the type (of pii detector, e.g. email). Because I've added IPiiDetector to the app services, and I'm injecting them using dependency injection in Program, it means for any new pii I want to detect, all I'd need to do is create a new class that implements the interface and register it in the services which makes it clean and easy to keep track of what pii we have in the project.
 
 - Frontend plans:
   if I spent more time on it, I'd have created an interface similar to IPiiDetector including 1. the Pii regex (except here I want to detect all emails, not distinct ones) and 2. the pii type. Then either in App, or a separate file if the project grew bigger, I'd define a list of my piiDetectors, loop through them to find the pii text and type, passing that into wrapTextWithTooltips which I'd tweak to take in an array. I'd do it this way so that again, there was one point of reference for which pii is being searched for (in the defined list), and one folder where I'd create the different pii functions + tests so it's easy to find everything.
